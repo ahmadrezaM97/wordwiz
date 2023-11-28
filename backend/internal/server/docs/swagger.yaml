@@ -1,0 +1,65 @@
+definitions:
+  models.AddWordRequest:
+    properties:
+      definitions:
+        items:
+          $ref: '#/definitions/models.Definition'
+        type: array
+      user_id:
+        type: string
+      word:
+        $ref: '#/definitions/models.Word'
+    type: object
+  models.Definition:
+    properties:
+      definition:
+        type: string
+      lang:
+        type: string
+    type: object
+  models.Word:
+    properties:
+      example:
+        type: string
+      image_url:
+        type: string
+      lang:
+        type: string
+      link:
+        type: string
+      word:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: to check http server health
+      produces:
+      - application/json
+      responses: {}
+      summary: show http server health
+      tags:
+      - health
+  /words/add:
+    post:
+      consumes:
+      - application/json
+      description: Add word
+      parameters:
+      - description: AddWordRequest body
+        in: body
+        name: AddWordRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddWordRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Add word
+      tags:
+      - word
+swagger: "2.0"
