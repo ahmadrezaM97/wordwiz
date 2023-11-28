@@ -18,3 +18,11 @@ type AddWordRequest struct {
 	Word        Word         `json:"word"`
 	Definitions []Definition `json:"definitions"`
 }
+
+type UserWord struct {
+	Word        Word         `json:"word"`
+	Definitions []Definition `json:"definitions"`
+}
+type UserWords struct {
+	Words []UserWord `json:"words"`
+}

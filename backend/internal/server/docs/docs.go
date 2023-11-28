@@ -31,6 +31,38 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/user/{user_id}/words": {
+            "get": {
+                "description": "GetUserWords",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "word"
+                ],
+                "summary": "GetUserWords",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserWords"
+                        }
+                    }
+                }
+            }
+        },
         "/words/add": {
             "post": {
                 "description": "Add word",
@@ -85,6 +117,31 @@ const docTemplate = `{
                 },
                 "lang": {
                     "type": "string"
+                }
+            }
+        },
+        "models.UserWord": {
+            "type": "object",
+            "properties": {
+                "definitions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Definition"
+                    }
+                },
+                "word": {
+                    "$ref": "#/definitions/models.Word"
+                }
+            }
+        },
+        "models.UserWords": {
+            "type": "object",
+            "properties": {
+                "words": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserWord"
+                    }
                 }
             }
         },

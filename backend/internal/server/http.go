@@ -60,6 +60,7 @@ func route(cfg config.Config, stg storage.Storage) http.Handler {
 	ginEngine.GET("/health", h.Health)
 
 	ginEngine.POST("/words/add", h.AddWord)
+	ginEngine.GET("/user/:user_id/words", h.GetUserWords)
 
 	// use ginSwagger middleware to serve the API docs
 	ginEngine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

@@ -17,6 +17,22 @@ definitions:
       lang:
         type: string
     type: object
+  models.UserWord:
+    properties:
+      definitions:
+        items:
+          $ref: '#/definitions/models.Definition'
+        type: array
+      word:
+        $ref: '#/definitions/models.Word'
+    type: object
+  models.UserWords:
+    properties:
+      words:
+        items:
+          $ref: '#/definitions/models.UserWord'
+        type: array
+    type: object
   models.Word:
     properties:
       example:
@@ -44,6 +60,27 @@ paths:
       summary: show http server health
       tags:
       - health
+  /user/{user_id}/words:
+    get:
+      consumes:
+      - application/json
+      description: GetUserWords
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserWords'
+      summary: GetUserWords
+      tags:
+      - word
   /words/add:
     post:
       consumes:

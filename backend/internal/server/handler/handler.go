@@ -21,12 +21,12 @@ func New(cfg config.Config, stg storage.Storage) *Handler {
 }
 
 // Health godoc
-// @Summary      show http server health
-// @Description  to check http server health
-// @Tags         health
-// @Accept       json
-// @Produce      json
-// @Router       /health [GET]
+//	@Summary		show http server health
+//	@Description	to check http server health
+//	@Tags			health
+//	@Accept			json
+//	@Produce		json
+//	@Router			/health [GET]
 func (h *Handler) Health(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"app":    h.cfg.App,
