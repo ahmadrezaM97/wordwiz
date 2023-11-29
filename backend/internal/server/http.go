@@ -59,8 +59,11 @@ func route(cfg config.Config, stg storage.Storage) http.Handler {
 
 	ginEngine.GET("/health", h.Health)
 
-	ginEngine.POST("/words/add", h.AddWord)
-	ginEngine.GET("/user/:user_id/words", h.GetUserWords)
+	ginEngine.POST("/words/add", h.AuthMiddleware(), h.AddWord)
+	ginEngine.GET("/user/words", h.AuthMiddleware(), h.GetUserWords)
+
+	ginEngine.GET("/auth/google/login", h.GoogleLogin)
+	ginEngine.GET("/auth/google/callback", h.HandleGoogleCallback)
 
 	// use ginSwagger middleware to serve the API docs
 	ginEngine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
