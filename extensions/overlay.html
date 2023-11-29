@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Definition Overlay</title>
+    <style>
+        /* Overlay styles */
+        html, body {
+            height:100%;
+            width:100%;
+            margin:0;
+        }
+        #overlay {
+            position: absolute;
+            padding: 20px;
+            background-color: #fff;
+            border: 2px solid #333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            text-align: center;
+        }
+        #overlay button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay">
+        <h2 id="word">Word Definition</h2>
+        <p>Definition of the word goes here.</p>
+        <button onclick="alert('SHIT')">Click for Additional Logic</button>
+    </div>
+</body>
+</html>

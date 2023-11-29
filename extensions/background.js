@@ -4,21 +4,11 @@ chrome.runtime.onInstalled.addListener(function () {
       title: "Save Word",
       contexts: ["selection"],
     });
-  });
-  
-  chrome.contextMenus.onClicked.addListener(function (info, tab) {
-    if (info.menuItemId === "saveWordContextMenu") {
-      saveWord(info.selectionText);
-    }
-  });
-  
-  function saveWord(word) {
-    console.log('Word saved:', word);
+});
 
+chrome.contextMenus.onClicked.addListener(function (info, tab) {
+  if (info.menuItemId === "saveWordContextMenu") {
+    console.log("I found it: ", info.selectionText, tab.id)
+    chrome.tabs.sendMessage(tab.id, { action: "showOverlay" , selectionText: info.selectionText});
   }
-  
-  function sendSelectedTextToPopup(selectedText) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, { action: 'openPopup', selectedText: selectedText });
-    });
-  }
+});
