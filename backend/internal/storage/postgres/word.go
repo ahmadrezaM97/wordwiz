@@ -2,12 +2,36 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 
 	"wordwiz/internal/models"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx"
 )
+
+func (s *Storage) GetWordByLanguageAndWord(ctx context.Context, language string, word string) (resp *models.Word, err error) {
+	var result models.Word
+
+	err = s.conn.QueryRow(ctx, `
+        SELECT id, language, word, example, image_url, link FROM "words"
+        WHERE "language" = $1 AND "word" = $2
+    `, language, word).Scan(
+		&result.ID,
+		&result.Lang,
+		&result.Word,
+		&result.Example,
+		&result.ImageURL,
+		&result.Link,
+	)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &result, nil
+}
 
 func (s *Storage) AddWord(ctx context.Context, userID string, word models.Word, definitions []models.Definition) (err error) {
 	// Begin a transaction
@@ -22,14 +46,12 @@ func (s *Storage) AddWord(ctx context.Context, userID string, word models.Word, 
 		}
 	}()
 
-	wordID := uuid.New().String()
-
-	fmt.Println(word.ImageURL)
 	// Insert word into "words" table
 	_, err = tx.Exec(ctx, `
-		INSERT INTO "words" ("id", "language", "word", "example", "image_url", "link")
-		VALUES ($1, $2, $3, $4, $5, $6)
-	`, wordID, word.Lang, word.Word, word.Example, word.ImageURL, word.Link)
+    INSERT INTO "words" ("id", "language", "word", "example", "image_url", "link")
+    VALUES ($1, $2, $3, $4, $5, $6)
+    ON CONFLICT ("language", "word") DO NOTHING
+	`, word.ID, word.Lang, word.Word, word.Example, word.ImageURL, word.Link)
 	if err != nil {
 		return err
 	}
@@ -39,7 +61,8 @@ func (s *Storage) AddWord(ctx context.Context, userID string, word models.Word, 
 		_, err = tx.Exec(ctx, `
 			INSERT INTO "definitions" ("language", "definition", "word_fk")
 			VALUES ($1, $2, $3)
-		`, definition.Lang, definition.Definition, wordID)
+			ON CONFLICT ("language", "word_fk") DO NOTHING
+		`, definition.Lang, definition.Definition, word.ID)
 		if err != nil {
 			return err
 		}
@@ -49,7 +72,8 @@ func (s *Storage) AddWord(ctx context.Context, userID string, word models.Word, 
 	_, err = tx.Exec(ctx, `
 		INSERT INTO "userwords" ("user_fk", "word_fk", "status", "note")
 		VALUES ($1, $2, $3, $4)
-	`, userID, wordID, 1, "Some note about the word")
+		ON CONFLICT ("user_fk", "word_fk") DO NOTHING
+	`, userID, word.ID, 1, "Some note about the word")
 	if err != nil {
 		return err
 	}

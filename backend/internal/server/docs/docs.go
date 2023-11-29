@@ -31,7 +31,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/user/{user_id}/words": {
+        "/user/words": {
             "get": {
                 "description": "GetUserWords",
                 "consumes": [
@@ -44,15 +44,6 @@ const docTemplate = `{
                     "word"
                 ],
                 "summary": "GetUserWords",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -100,9 +91,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.Definition"
                     }
-                },
-                "user_id": {
-                    "type": "string"
                 },
                 "word": {
                     "$ref": "#/definitions/models.Word"

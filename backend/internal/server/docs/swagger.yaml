@@ -5,8 +5,6 @@ definitions:
         items:
           $ref: '#/definitions/models.Definition'
         type: array
-      user_id:
-        type: string
       word:
         $ref: '#/definitions/models.Word'
     type: object
@@ -60,17 +58,11 @@ paths:
       summary: show http server health
       tags:
       - health
-  /user/{user_id}/words:
+  /user/words:
     get:
       consumes:
       - application/json
       description: GetUserWords
-      parameters:
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: string
       produces:
       - application/json
       responses:

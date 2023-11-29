@@ -1,6 +1,7 @@
 package models
 
 type Word struct {
+	ID       string `json:"-"`
 	Lang     string `json:"lang"`
 	Word     string `json:"word"`
 	Example  string `json:"example"`
@@ -14,7 +15,6 @@ type Definition struct {
 }
 
 type AddWordRequest struct {
-	UserID      string       `json:"user_id"`
 	Word        Word         `json:"word"`
 	Definitions []Definition `json:"definitions"`
 }
