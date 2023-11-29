@@ -1,3 +1,25 @@
+
+## Postgres
+
+To run docker container:
+```
+docker run -d \
+  --name wordwiz-postgres \
+  -e POSTGRES_PASSWORD=wordwiz123qwerty \
+  -p 5432:5432 postgres:latest
+```
+
+To create a database in psql:
+```
+CREATE USER wordwiz_user WITH PASSWORD 'wordwiz$123qwerty!';
+
+CREATE DATABASE wordwiz_db;
+
+GRANT ALL PRIVILEGES ON DATABASE wordwiz_db TO wordwiz_user;
+
+```
+
+
 ## Migrate DB:
 https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
 
