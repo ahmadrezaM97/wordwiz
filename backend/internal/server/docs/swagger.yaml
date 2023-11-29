@@ -1,0 +1,102 @@
+definitions:
+  models.AddWordRequest:
+    properties:
+      definitions:
+        items:
+          $ref: '#/definitions/models.Definition'
+        type: array
+      user_id:
+        type: string
+      word:
+        $ref: '#/definitions/models.Word'
+    type: object
+  models.Definition:
+    properties:
+      definition:
+        type: string
+      lang:
+        type: string
+    type: object
+  models.UserWord:
+    properties:
+      definitions:
+        items:
+          $ref: '#/definitions/models.Definition'
+        type: array
+      word:
+        $ref: '#/definitions/models.Word'
+    type: object
+  models.UserWords:
+    properties:
+      words:
+        items:
+          $ref: '#/definitions/models.UserWord'
+        type: array
+    type: object
+  models.Word:
+    properties:
+      example:
+        type: string
+      image_url:
+        type: string
+      lang:
+        type: string
+      link:
+        type: string
+      word:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: to check http server health
+      produces:
+      - application/json
+      responses: {}
+      summary: show http server health
+      tags:
+      - health
+  /user/{user_id}/words:
+    get:
+      consumes:
+      - application/json
+      description: GetUserWords
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserWords'
+      summary: GetUserWords
+      tags:
+      - word
+  /words/add:
+    post:
+      consumes:
+      - application/json
+      description: Add word
+      parameters:
+      - description: AddWordRequest body
+        in: body
+        name: AddWordRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddWordRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Add word
+      tags:
+      - word
+swagger: "2.0"
