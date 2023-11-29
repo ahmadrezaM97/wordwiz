@@ -109,7 +109,7 @@ func (h *Handler) HandleGoogleCallback(c *gin.Context) {
 		Path:    "/",
 	})
 
-	c.JSON(http.StatusOK, gin.H{"token": accessToken})
+	c.JSON(http.StatusOK, gin.H{"msg": "Login successful! Welcome back to your account."})
 }
 
 // GetGoogleUserInfo retrieves user information using the Google token.
