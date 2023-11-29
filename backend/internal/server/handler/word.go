@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"text/template"
 	"wordwiz/internal/models"
 	"wordwiz/pkg/logger"
 
@@ -90,4 +91,57 @@ func (h *Handler) GetUserWords(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, userWords)
+}
+
+type PageData struct {
+	Words []struct {
+		Word       string
+		Definition string
+	}
+}
+
+func (h *Handler) GetUserWordsPage(c *gin.Context) {
+	uid, exists := c.Get("uid")
+	if !exists {
+		logger.Get().Error().Msg("error on accessing uid")
+		c.JSON(http.StatusForbidden, gin.H{"error": "error on accessing uid"})
+		return
+	}
+
+	uidStr, ok := uid.(string)
+	if !ok {
+		logger.Get().Error().Msg("error on parsing uid")
+		c.JSON(http.StatusForbidden, gin.H{"error": "error on parsing uid"})
+		return
+	}
+
+	userWords, err := h.stg.GetUserWordList(c.Request.Context(), uidStr)
+	if err != nil {
+		logger.Get().Err(err).Msg("Failed to GetUserWordList")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch user words"})
+		return
+	}
+
+	pagedata := PageData{}
+
+	for i := range userWords.Words {
+		pagedata.Words = append(pagedata.Words, struct {
+			Word       string
+			Definition string
+		}{Word: userWords.Words[i].Word.Word, Definition: userWords.Words[i].Definitions[0].Definition})
+	}
+
+	tmpl, err := template.ParseFiles("internal/server/handler/templates/words_template.html")
+	if err != nil {
+		logger.Get().Err(err).Msg("error in parsing template file")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+		return
+	}
+
+	if err := tmpl.Execute(c.Writer, pagedata); err != nil {
+		logger.Get().Err(err).Msg("error in parsing template file")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal error"})
+
+		return
+	}
 }
