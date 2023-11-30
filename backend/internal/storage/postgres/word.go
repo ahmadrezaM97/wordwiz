@@ -95,6 +95,7 @@ func (s *Storage) GetUserWordList(ctx context.Context, userID string) (resp mode
 		INNER JOIN words w ON uw.word_fk = w.id
 		LEFT JOIN definitions d ON w.id = d.word_fk
 		WHERE uw.user_fk = $1
+		ORDER BY w.created_at DESC
 	`, userID)
 	if err != nil {
 		return resp, err
