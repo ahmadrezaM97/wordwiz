@@ -69,6 +69,7 @@ func route(cfg config.Config, stg storage.Storage) http.Handler {
 
 	ginEngine.GET("/health", h.Health)
 
+	ginEngine.GET("/words", h.AuthMiddleware(), h.GetUserWordsPage)
 	ginEngine.POST("/words/add", h.AuthMiddleware(), h.AddWord)
 	ginEngine.GET("/user/words", h.AuthMiddleware(), h.GetUserWords)
 

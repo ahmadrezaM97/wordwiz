@@ -102,7 +102,14 @@ func (h *Handler) HandleGoogleCallback(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": accessToken})
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:    "Authorization",
+		Value:   fmt.Sprintf("Bearer %s", accessToken),
+		Expires: time.Now().Add(time.Hour * 24), // Token expires in 24 hours
+		Path:    "/",
+	})
+
+	c.JSON(http.StatusOK, gin.H{"msg": "Login successful! Welcome back to your account."})
 }
 
 // GetGoogleUserInfo retrieves user information using the Google token.
@@ -133,13 +140,19 @@ func GetGoogleUserInfo(ctx context.Context, code string) (userInfo map[string]in
 
 func (h *Handler) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
+		authCookie, err := c.Request.Cookie("Authorization")
+		if err != nil {
+			logger.Get().Err(err).Msg("get cookie")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "get token from cookie"})
+			return
+		}
+
+		if authCookie == nil || authCookie.Value == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
 			return
 		}
 
-		tokenParts := strings.Split(authHeader, " ")
+		tokenParts := strings.Split(authCookie.Value, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization format"})
 			return
