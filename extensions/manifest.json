@@ -3,7 +3,13 @@
   "name": "Word Saver",
   "version": "1.0",
   "description": "Select and save words from webpages",
-  "permissions": ["activeTab", "contextMenus", "tabs"],
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "tabs",
+    "notifications",
+    "webRequestBlocking"
+  ],
   "browser_action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -12,15 +18,24 @@
       "128": "images/icon128.png"
     }
   },
-  "web_accessible_resources": ["overlay.html"],
+  "web_accessible_resources": [
+    "overlay.html"
+  ],
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ]
     }
   ],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": [
+      "background.js",
+      "helper.js"
+    ],
     "persistent": false
   }
 }

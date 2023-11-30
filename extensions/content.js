@@ -1,56 +1,77 @@
+let globalObj = {}
+function highlightWordsInPageWithTooltip() {
+  // Get the text content of the entire page
+  const pageText = document.body.innerText;
+
+  if (globalObj == null || globalObj == undefined || globalObj == {}) {
+    return
+  }
+  // Iterate through each key in the globalObj root
+  for (const key in globalObj) {
+    if (globalObj.hasOwnProperty(key)) {
+      const wordToHighlight = key;
+      const regex = new RegExp(`\\b${wordToHighlight}\\b`, 'gi');
+
+      // Replace each occurrence of the word with a span and add a tooltip
+      document.body.innerHTML = document.body.innerHTML.replace(regex, match => {
+        const tooltipContent = getTooltipContent(globalObj[key]);
+        return `<span class="highlighted-word" title="${tooltipContent}" style="background-color: yellow; cursor: pointer;">${match}</span>`;
+      });
+    }
+  }
+}
+
+function getTooltipContent(data) {
+  // Customize this function based on the structure of your JSON data
+  // Here, we are assuming a simple structure for demonstration purposes
+  if (data && data.eng && data.eng.example) {
+    return `Example: ${data.eng.example}`;
+  } else {
+    return "No additional information available";
+  }
+}
+
+// Add event listener to show tooltip on hover
+document.body.addEventListener('mouseover', function (event) {
+  const target = event.target;
+
+  if (target.classList.contains('highlighted-word')) {
+    const tooltipContent = target.getAttribute('title');
+    showTooltip(event.clientX, event.clientY, tooltipContent);
+  }
+});
+
+document.body.addEventListener('mouseout', function (event) {
+  const target = event.target;
+
+  if (target.classList.contains('highlighted-word')) {
+    hideTooltip();
+  }
+});
+
+function showTooltip(x, y, content) {
+  const tooltip = document.createElement('div');
+  tooltip.className = 'tooltip';
+  tooltip.innerHTML = content;
+  tooltip.style.position = 'absolute';
+  tooltip.style.top = y + 'px';
+  tooltip.style.left = x + 'px';
+  document.body.appendChild(tooltip);
+}
+
+function hideTooltip() {
+  const tooltips = document.querySelectorAll('.tooltip');
+  tooltips.forEach(tooltip => tooltip.remove());
+}
+
+
 window.addEventListener("load", function () {
-  highlight();
+  highlightWordsInPageWithTooltip();
 });
 
 window.addEventListener("scroll", function () {
-  highlight();
+  highlightWordsInPageWithTooltip();
 });
-
-function highlight() {
-  const wordsToHighlight = ["Petersen", "represent", "word"]; // Add your list of words here
-
-  function highlightWords(words) {
-    const regex = new RegExp(`\\b(${words.join("|")})\\b`, "gi");
-
-    const allElements = document.querySelectorAll(
-      "*:not(script):not(style):not(textarea)"
-    );
-
-    allElements.forEach((element) => {
-      if (
-        element.childNodes.length === 1 &&
-        element.childNodes[0].nodeType === 3 &&
-        element.className != "highlighted-word"
-      ) {
-        element.innerHTML = element.innerHTML.replace(
-          regex,
-          (match) =>
-            `<span class="highlighted-word" onmouseover="{}" style="background-color: yellow;" class="highlight">${match}</span>`
-        );
-
-        const highlightedSpans = element.querySelectorAll(".highlighted-word");
-        highlightedSpans.forEach(function (span) {
-          span.addEventListener("mouseover", function () {
-            // Add your mouse hover logic here
-            console.log(`Hovered over: ${span.innerText}`);
-            rect = span.getBoundingClientRect();
-            let top = window.scrollY + rect.top + rect.height + "px";
-            let left = window.scrollX + rect.left + rect.width + "px";
-            ShowDefinitionOverlay(top, left, "test difinition");
-          });
-
-          span.addEventListener("mouseout", function () {
-            // Add your mouse out logic here
-            console.log(`Mouse out: ${span.innerText}`);
-            HideDefinitionOverlay();
-          });
-        });
-      }
-    });
-  }
-
-  highlightWords(wordsToHighlight);
-}
 
 document.addEventListener("click", function (event) {
   console.log("User clicked at coordinates:", {
@@ -60,10 +81,17 @@ document.addEventListener("click", function (event) {
   hidePopup();
 });
 
+// Attach the handleAddButtonClick function to the click event of the "popup-add" button
+document.addEventListener('click', function (event) {
+  if (event.target.id === 'popup-add') {
+    handleAddButtonClick(event);
+  }
+});
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === "showOverlay") {
-    if (message.selectionText) {
-      console.log("togglePopup", message.selectionText);
+    if (message.data) {
+      console.log("togglePopup", message.data);
 
       let selection = window.getSelection();
       let range = selection.getRangeAt(0);
@@ -72,8 +100,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       let top = window.scrollY + rect.top + rect.height + "px";
       let left = window.scrollX + rect.left + rect.width + "px";
 
-      word = message.selectionText;
-      togglePopup(top, left, word, "definition of " + word + " ");
+      togglePopup(top, left, message.data.word.word, "definition of " + message.data.definitions[0].definition + " ");
     }
   }
 });
@@ -114,6 +141,25 @@ function HideDefinitionOverlay() {
   }
 }
 
+function addWord(word) {
+  chrome.runtime.sendMessage(
+    { action: 'addWord', word: word },
+    function (res) {
+      console.log('globalObj Response from background.js:', res);
+      console.log(JSON.stringify(res))
+      Object.assign(globalObj, res)
+      highlightWordsInPageWithTooltip()
+    }
+  );
+}
+
+function handleAddButtonClick(event) {
+  var word = event.target.value;
+  console.log('Add button clicked for word:', word);
+
+  addWord(word)
+}
+
 function togglePopup(top, left, word, definition) {
   const popupContainerId = "popup-container";
 
@@ -130,7 +176,7 @@ function togglePopup(top, left, word, definition) {
     <div id="${popupContainerId}" style="${getPopupStyles(top, left)}">
       <h1>${word}</p>
       <p style="${getPopupContentStyles()}">${definition}</p>
-      <button id="popup-add" style="${getAddButtonStyles()}">Add</button>
+      <button id="popup-add" value="${word}" style="${getAddButtonStyles()}" style="${getAddButtonStyles()}">Add</button>
     </div>
   `;
 
